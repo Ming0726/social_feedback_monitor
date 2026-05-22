@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+data/*.sqlite3
+outputs/*.xlsx
+screenshots/*.png
+screenshots/*.jpg
+screenshots/*.jpeg
+auth/*.json
+diagnostics/*.html
+diagnostics/*.png
+logs/*.log
