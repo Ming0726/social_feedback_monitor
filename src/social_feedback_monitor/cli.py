@@ -125,6 +125,11 @@ def main(argv: list[str] | None = None) -> int:
                 author=args.author,
                 parent_url=args.parent_url,
             )
+            from .keyword_filter import match_keywords
+
+            if not match_keywords(item.text, config):
+                print("添加失败：文本未通过取词过滤规则，不会入库。")
+                return 1
             inserted, skipped = store.upsert_items([analyze_item(item, config)])
             print(f"添加完成：新增 {inserted} 条，重复跳过 {skipped} 条。")
             return 0

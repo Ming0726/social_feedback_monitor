@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS feedback_items (
     screenshot_path TEXT,
     sentiment TEXT,
     category TEXT,
+    matched_keyword TEXT,
+    feedback_category TEXT,
+    mentioned_competitors TEXT,
     captured_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_feedback_platform ON feedback_items(platform);
@@ -39,10 +42,22 @@ class FeedbackStore:
         self.conn = sqlite3.connect(self.db_path)
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(SCHEMA)
+        self._migrate()
         self.conn.commit()
 
     def close(self) -> None:
         self.conn.close()
+
+    def _migrate(self) -> None:
+        columns = {row["name"] for row in self.conn.execute("PRAGMA table_info(feedback_items)")}
+        migrations = {
+            "matched_keyword": "ALTER TABLE feedback_items ADD COLUMN matched_keyword TEXT",
+            "feedback_category": "ALTER TABLE feedback_items ADD COLUMN feedback_category TEXT DEFAULT 'feedback'",
+            "mentioned_competitors": "ALTER TABLE feedback_items ADD COLUMN mentioned_competitors TEXT",
+        }
+        for column, sql in migrations.items():
+            if column not in columns:
+                self.conn.execute(sql)
 
     def upsert_items(self, items: Iterable[FeedbackItem]) -> tuple[int, int]:
         inserted = 0
@@ -55,8 +70,10 @@ class FeedbackStore:
                     INSERT INTO feedback_items (
                         fingerprint, item_type, platform, keyword, text, url,
                         published_at, author, likes_count, comments_count,
-                        parent_url, screenshot_path, sentiment, category, captured_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        parent_url, screenshot_path, sentiment, category,
+                        matched_keyword, feedback_category, mentioned_competitors,
+                        captured_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         item.fingerprint(),
@@ -73,6 +90,9 @@ class FeedbackStore:
                         item.screenshot_path,
                         item.sentiment,
                         item.category,
+                        item.matched_keyword,
+                        item.feedback_category,
+                        item.mentioned_competitors,
                         item.captured_at,
                     ),
                 )

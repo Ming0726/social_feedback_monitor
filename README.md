@@ -71,6 +71,34 @@ python main.py search-urls
 
 工具会按 `config/keywords.yaml` 打印小红书和抖音搜索页入口。
 
+## 取词过滤逻辑
+
+当前版本按 `取词逻辑.md` 实现了入库前过滤，不再是简单命中关键词就收录。
+
+入库结果分两类：
+
+- `feedback`: 纯微信面对面红包反馈
+- `competitor_compare`: 微信和竞品的对比型内容
+
+纯竞品、普通红包、营销活动和太短灌水内容会丢弃。比如：
+
+| 文本 | 结果 |
+|---|---|
+| `微信面对面红包真烂` | 入库，`feedback` |
+| `支付宝面对面红包活动` | 丢弃 |
+| `支付宝的扫码红包比微信好用` | 入库，`competitor_compare` |
+| `招行 App 有面对面发红包` | 入库，`competitor_compare` |
+| `支付宝活动来扫码领红包` | 丢弃 |
+| `群红包被秒抢` | 丢弃 |
+
+Excel 和数据库会额外写入：
+
+- `matched_keyword`: 命中的关键词，多个用 `|` 分隔
+- `feedback_category`: `feedback` / `competitor_compare`
+- `mentioned_competitors`: 提到的竞品，多个用 `|` 分隔
+
+关键词、竞品词、上下文词和排除词都在 [config/keywords.yaml](config/keywords.yaml) 里维护。
+
 ## 小红书浏览器采集
 
 第一版小红书采集使用浏览器自动化。你先手动登录一次，程序保存登录态；后续再自动打开搜索页、滚动、读取当前搜索结果页里可见的笔记卡片，并写入本地库。

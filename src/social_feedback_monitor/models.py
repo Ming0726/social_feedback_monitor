@@ -28,6 +28,9 @@ class FeedbackItem:
     screenshot_path: str = ""
     sentiment: str = ""
     category: str = ""
+    matched_keyword: str = ""
+    feedback_category: str = ""
+    mentioned_competitors: str = ""
     captured_at: str = ""
 
     def fingerprint(self) -> str:

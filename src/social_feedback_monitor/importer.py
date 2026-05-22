@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .analyzer import analyze_item
 from .config import MonitorConfig
+from .keyword_filter import match_keywords
 from .models import FeedbackItem
 
 
@@ -34,6 +35,6 @@ def import_csv(path: Path | str, config: MonitorConfig) -> list[FeedbackItem]:
                 parent_url=str(row.get("parent_url", "")).strip(),
                 screenshot_path=str(row.get("screenshot_path", "")).strip(),
             )
-            if item.platform and item.text:
+            if item.platform and item.text and match_keywords(item.text, config):
                 items.append(analyze_item(item, config))
     return items

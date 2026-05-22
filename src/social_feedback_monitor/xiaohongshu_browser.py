@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from .analyzer import analyze_item
 from .config import MonitorConfig
+from .keyword_filter import match_keywords
 from .models import FeedbackItem
 
 
@@ -121,6 +122,8 @@ async def collect_xiaohongshu_search(
         item_url = raw.get("url", "")
         if not text or not item_url:
             continue
+        if not match_keywords(text, config):
+            continue
         item = FeedbackItem(
             item_type="post",
             platform="xiaohongshu",
@@ -153,11 +156,14 @@ async def diagnose_xiaohongshu_parser(
 
     items: list[FeedbackItem] = []
     for raw in raw_items:
+        text = _clean_text(raw.get("text", ""))
+        if not match_keywords(text, config):
+            continue
         item = FeedbackItem(
             item_type="post",
             platform="xiaohongshu",
             keyword=keyword,
-            text=_clean_text(raw.get("text", "")),
+            text=text,
             url=raw.get("url", ""),
             author=_clean_text(raw.get("author", "")),
             likes_count=_parse_count(raw.get("likes_count", "")),

@@ -1,4 +1,4 @@
 item_type,platform,keyword,text,url,published_at,author,likes_count,comments_count,parent_url
-post,xiaohongshu,面对面红包,微信面对面红包入口在哪里，找了半天没找到,https://example.com/xhs/1,2026-05-20,用户A,12,3,
-comment,xiaohongshu,面对面红包,我也是扫码一直失败,https://example.com/xhs/1#comment-1,2026-05-20,用户B,2,,https://example.com/xhs/1
-post,douyin,扫码红包,扫码红包这个场景还挺方便的,https://example.com/douyin/1,2026-05-19,用户C,88,10,
+post,xiaohongshu,微信面对面红包,微信面对面红包入口在哪里，找了半天没找到,https://example.com/xhs/1,2026-05-20,用户A,12,3,
+comment,xiaohongshu,面对面红包扫不了,微信面对面红包扫码一直失败,https://example.com/xhs/1#comment-1,2026-05-20,用户B,2,,https://example.com/xhs/1
+post,douyin,扫码红包,支付宝的扫码红包比微信好用,https://example.com/douyin/1,2026-05-19,用户C,88,10,

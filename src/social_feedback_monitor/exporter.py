@@ -11,6 +11,9 @@ POST_COLUMNS = [
     "keyword",
     "published_at",
     "captured_at",
+    "matched_keyword",
+    "feedback_category",
+    "mentioned_competitors",
     "text",
     "url",
     "screenshot_path",
@@ -27,6 +30,9 @@ COMMENT_COLUMNS = [
     "keyword",
     "published_at",
     "captured_at",
+    "matched_keyword",
+    "feedback_category",
+    "mentioned_competitors",
     "text",
     "url",
     "parent_url",
@@ -49,7 +55,22 @@ def export_excel(rows: list, output_path: Path | str) -> Path:
     wb.remove(default)
     _write_sheet(wb, "主帖明细", POST_COLUMNS, posts)
     _write_sheet(wb, "评论明细", COMMENT_COLUMNS, comments)
-    _write_sheet(wb, "每日统计", ["date", "platform", "keyword", "新增主帖数", "新增评论数", "正向数", "负向数", "中性数"], _daily_stats(dict_rows))
+    _write_sheet(
+        wb,
+        "每日统计",
+        [
+            "date",
+            "platform",
+            "keyword",
+            "feedback_category",
+            "新增主帖数",
+            "新增评论数",
+            "正向数",
+            "负向数",
+            "中性数",
+        ],
+        _daily_stats(dict_rows),
+    )
     _write_sheet(wb, "归因分析", ["问题类型", "出现次数", "平台分布", "典型原文"], _attribution_stats(dict_rows))
     _format_workbook(wb)
     wb.save(output)
@@ -58,18 +79,24 @@ def export_excel(rows: list, output_path: Path | str) -> Path:
 
 
 def _daily_stats(rows: list[dict]) -> list[dict]:
-    grouped: dict[tuple[str, str, str], list[dict]] = {}
+    grouped: dict[tuple[str, str, str, str], list[dict]] = {}
     for row in rows:
-        key = (str(row.get("captured_at", ""))[:10], row.get("platform", ""), row.get("keyword", ""))
+        key = (
+            str(row.get("captured_at", ""))[:10],
+            row.get("platform", ""),
+            row.get("keyword", ""),
+            row.get("feedback_category", ""),
+        )
         grouped.setdefault(key, []).append(row)
 
     result = []
-    for (date, platform, keyword), group in grouped.items():
+    for (date, platform, keyword, feedback_category), group in grouped.items():
         result.append(
             {
                 "date": date,
                 "platform": platform,
                 "keyword": keyword,
+                "feedback_category": feedback_category,
                 "新增主帖数": sum(1 for row in group if row.get("item_type") == "post"),
                 "新增评论数": sum(1 for row in group if row.get("item_type") == "comment"),
                 "正向数": sum(1 for row in group if row.get("sentiment") == "正向"),
